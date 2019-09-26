@@ -1,0 +1,34 @@
+#include <cmath> 
+#include <vector> 
+#include <algorithm>
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int main()
+{
+    double BIT[30] = {  10185.50, 9754.42,  9510.20,  9598.17,  9630.66,  9757.97,10346.76,
+                        10623.54, 10594.49, 10575.53, 10353.30, 10517.25, 10441.28, 
+                        10334.97, 10115.98, 10178.37, 10410.13, 10360.55, 10358.05, 
+                        10347.71, 10276.79, 10241.27, 10198.25, 10266.41, 10181.64, 
+                        10019.72, 10070.39, 9729.32,  8620.57,  8486.99};
+                        
+    double average, sum, count; 
+    double profit; 
+    
+    sum = 0;
+    count = 0;
+    profit = 0;
+    average = 0;
+    
+    for(int i = 0; i<30;i++){
+        
+        sum +=BIT[i]; 
+        count++; 
+        average = sum/count; 
+        if(BIT[i-1]<average) profit = BIT[i]-BIT[i-1]; 
+        if(BIT[i-1]>average) profit = BIT[i-1]-BIT[i];
+    }
+    cout<<profit;
+}
