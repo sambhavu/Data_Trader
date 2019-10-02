@@ -4,6 +4,10 @@
 #include <string>
 using namespace std; 
 
+#ifndef Pi 
+#define Pi 3.141592653589793238462643 
+#endif 
+
 const double EURUSD[679] = {
     
 1.116300, 
@@ -691,7 +695,7 @@ const double EURUSD[679] = {
 class FX{
     public: 
     
-    vector<double> get_walk (double x, double y);
+    vector<double> get_walk (double z, double y);
     
     void MA_trader(); 
     
@@ -700,33 +704,60 @@ class FX{
 
 
 
-vector<double> FX :: get_walk(double x, double y){
+vector<double> FX :: get_walk(double z, double y){
     
     vector<double> walk; 
 
-    double m0 = x; 
+    double m0 = z; 
     double vol = y; 
+    double x = m0;
     
-    double u1,u2,normalrandom;
+    double normalrandom;
     double change; 
-    double count, sum, avg; 
+    double prev = m0; 
     
-    sum = 0;
-    count = 0; 
+    double L, K, w ;
     
-    double prev = m0;
     
-        for(int j = 0; j<680; j++) { 
+        for(int j = 0; j<679; j++) { 
+                change = 0;
+                /*
+
             
                 u1 = ( (double)(rand()) + 1.0 )/( (double)(RAND_MAX) + 1.0);
                 u2 = ( (double)(rand()) + 1.0 )/( (double)(RAND_MAX) + 1.0);
                 normalrandom = cos(8*atan(1.0)*u2)*sqrt(-2*log(u1));
                 
-                change = normalrandom*vol*m0; 
-                m0+=change; 
+                */
+                
+                   
+                double u1,u2, v1, v2;
+                double S = 2;
+ 
+                while(S>=1){
+     
+                u1 = double(rand())/double(RAND_MAX);
+                u2 = double(rand())/double(RAND_MAX);
+ 
+                v1 = 2.0*u1-1.0;
+                v2 = 2.0*u2-1.0;
+ 
+                S = pow(v1,2)+pow(v2,2);
+                };
+
+                double normalrandom = v1*sqrt((-2.0*log(S))/S);
+ 
+
+                //cout<<normalrandom<<", ";
+                
+                m0 = x + (normalrandom*vol);     
+                
                 walk.push_back(m0); 
-        }
+                
+            
         
+            
+            }
         return walk;
 }   
     
@@ -763,8 +794,8 @@ void FX:: MA_trader(){
         stdev1 +=pow((EURUSD[i] - mean1),2);
     }
     stdev1 = sqrt((n*stdev1));
-    
-    vector<double> eurusd_randomwalk = get_walk(mean1,stdev1/7);
+    //cout<<mean1<<"\n";
+    vector<double> eurusd_randomwalk = get_walk(mean1,stdev1);
     
     for(int i = 0; i<679; i++){
         if(i>15)
@@ -855,10 +886,11 @@ void FX:: MA_trader(){
             alpha = sumprofit - r_sumprofit;
             //cout<<sumprofit<<", "<<r_sumprofit<<"\n";
             
-            cout<<alpha<<", ";
+            //cout<<alpha<<", ";
             
         }//end of trading area
-        //cout<<EURUSD[i]<<", "<<eurusd_randomwalk[i]<<"\n";
+        //cout<<EURUSD[i]<<", ";
+        cout<<eurusd_randomwalk[i]<<", ";
         
         
     }//end of for loop 
