@@ -691,14 +691,19 @@ const double EURUSD[679] = {
 class FX{
     public: 
     
-    double random_variable(double x, double y);
+    vector<double> get_walk (double x, double y);
+    
     void MA_trader(); 
+    
+    double alpha;
 };
 
 
 
-double FX :: random_variable(double x, double y){
+vector<double> FX :: get_walk(double x, double y){
     
+    vector<double> walk; 
+
     double m0 = x; 
     double vol = y; 
     
@@ -711,8 +716,7 @@ double FX :: random_variable(double x, double y){
     
     double prev = m0;
     
-    for(int i = 0; i<100; i++){
-        for(int j = 0; j<10; j++) { 
+        for(int j = 0; j<680; j++) { 
             
                 u1 = ( (double)(rand()) + 1.0 )/( (double)(RAND_MAX) + 1.0);
                 u2 = ( (double)(rand()) + 1.0 )/( (double)(RAND_MAX) + 1.0);
@@ -720,42 +724,22 @@ double FX :: random_variable(double x, double y){
                 
                 change = normalrandom*vol*m0; 
                 m0+=change; 
+                walk.push_back(m0); 
         }
-        sum+=m0; 
-        count++; 
-    }
-    avg = sum/count; 
-    //cout<<avg<<"\n";
-    return avg;
-    
+        
+        return walk;
 }   
     
 
 
 
 void FX:: MA_trader(){
+    
     double numbers = 679;
-    
     double n = 1/(numbers-1); 
-    
     double sum1 = 0;
-  
     double mean1 = 0; 
-  
-    
     double stdev1 = 0;
-    
-    for(int i =0; i<numbers; i++){ 
-      sum1 += EURUSD[i]; 
-    }
-    
-    mean1 = sum1/numbers;
-    for(int i = 0; i<numbers; i++){
-        stdev1 +=pow((EURUSD[i] - mean1),2);
-    }
-    
-    stdev1 = sqrt((n*stdev1));
-    
     
     int flip = 0;
     double sum = 0; 
@@ -763,60 +747,122 @@ void FX:: MA_trader(){
     double profit = 0;
     double sumprofit = 0;
     
+    double r_sum; 
+    double r_MA15; 
+    double r_profit; 
+    double r_sumprofit;
+    int r_flip = 0; 
+    
+    
+    
+    for(int i =0; i<numbers; i++){                  //SQRT CALC
+      sum1 += EURUSD[i]; 
+    }
+    mean1 = sum1/numbers;
+    for(int i = 0; i<numbers; i++){
+        stdev1 +=pow((EURUSD[i] - mean1),2);
+    }
+    stdev1 = sqrt((n*stdev1));
+    
+    vector<double> eurusd_randomwalk = get_walk(mean1,stdev1/7);
+    
     for(int i = 0; i<679; i++){
-        
-        if(i>15){
+        if(i>15)
+        {
+            
             profit = 0;
             sum = 0;
+            
+            r_profit = 0; 
+            r_sum = 0; 
+            
             double count =0;
-            for(int j = i-15;j<i;j++){
+            
+            for(int j = i-15;j<i;j++){          //moving average calc
                 
                 sum += EURUSD[j];
+                r_sum += eurusd_randomwalk[i];
                 count++;
             }
-            
             MA15 = sum/count;
+            r_MA15 = r_sum/count;
+            
             
             if(flip ==0){
+                
+                if(EURUSD[i-1]>MA15){                       //bullish trend
+                    profit = 1000*(EURUSD[i]-EURUSD[i-1]);   
+                }
             
-            if(EURUSD[i-1]>MA15){           //bullish trend
-                profit = 1000*(EURUSD[i]-EURUSD[i-1]);   
-            }
-            
-            if(EURUSD[i-1]<MA15){            //bearish trend
-                profit = 1000*(EURUSD[i-1]-EURUSD[i]);    
-            }
-            
+                if(EURUSD[i-1]<MA15){                        //bearish trend
+                    profit = 1000*(EURUSD[i-1]-EURUSD[i]);    
+                }
+                
             }
             
             if(flip == 1){
                 
-                if(EURUSD[i-1]>MA15){           //bullish trend FLIP
-                  profit = 1000*(EURUSD[i-1]-EURUSD[i]); 
+                if(EURUSD[i-1]>MA15){                           // reverse bullish trend 
+                    profit = 1000*(EURUSD[i-1]-EURUSD[i]); 
                 }
             
-                if(EURUSD[i-1]<MA15){            //bearish trend FLIP
-                
-                profit = 1000*(EURUSD[i]-EURUSD[i-1]); 
+                if(EURUSD[i-1]<MA15){                           //reverse  bearish trend FLIP
+                    profit = 1000*(EURUSD[i]-EURUSD[i-1]); 
                 }
             }
             
-            if(profit>0) {
-                
-                flip = 0; 
-            }
-                
+            if(profit>0) {flip = 0;}
             if(profit<0){
                 if(flip == 1){flip = 0;}
                 else {flip = 1;}
             }
-            
+            //cout<<profit<<", ";
             sumprofit += profit;
             
-           // cout<<sumprofit<<", ";
+            //RANDOMWALK STRATEGY BELOW
+            
+            if(r_flip ==0){
+                
+                if(eurusd_randomwalk[i-1]>r_MA15){                       //bullish trend
+                    r_profit = 1000*(eurusd_randomwalk[i]-eurusd_randomwalk[i-1]);   
+                }
+            
+                if(eurusd_randomwalk[i-1]<MA15){                        //bearish trend
+                    r_profit = 1000*(eurusd_randomwalk[i-1]-eurusd_randomwalk[i]);    
+                }
+                
+            }
+            
+            if(r_flip == 1){
+                
+                if(eurusd_randomwalk[i-1]>r_MA15){                           // reverse bullish trend 
+                    r_profit = 1000*(eurusd_randomwalk[i-1]-eurusd_randomwalk[i]); 
+                }
+            
+                if(eurusd_randomwalk[i-1]<MA15){                           //reverse  bearish trend FLIP
+                    r_profit = 1000*(eurusd_randomwalk[i]-eurusd_randomwalk[i-1]);
+                }
+            }
+            
+            if(r_profit>0) {r_flip = 0;}
+            if(r_profit<0){
+                if(r_flip == 1){r_flip = 0;}
+                else {r_flip = 1;}
+            }
+            //cout<<r_profit<<"\n";
+            r_sumprofit += r_profit;
+            
+            alpha = sumprofit - r_sumprofit;
+            //cout<<sumprofit<<", "<<r_sumprofit<<"\n";
+            
+            cout<<alpha<<", ";
+            
+        }//end of trading area
+        //cout<<EURUSD[i]<<", "<<eurusd_randomwalk[i]<<"\n";
+        
+        
+    }//end of for loop 
     
-    }
-}
 }
 
 int main()
