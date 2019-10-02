@@ -750,7 +750,7 @@ vector<double> FX :: get_walk(double z, double y){
 
                 //cout<<normalrandom<<", ";
                 
-                m0 = x + (normalrandom*vol);     
+                m0 = m0 + (normalrandom*vol);     
                 
                 walk.push_back(m0); 
                 
