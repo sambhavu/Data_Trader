@@ -5060,7 +5060,7 @@ int linetrader :: getnode(vector<double> line, int day){
     for( int i = day; i>0; i--){
         change = line[i]-line[i-1]; 
         
-        if(change == 0){
+        if(-.000009>=change && change<=0.000009){
             node = i; 
             break;
         }
