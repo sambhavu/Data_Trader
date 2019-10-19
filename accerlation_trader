@@ -1531,6 +1531,9 @@ double linetrader :: trader(int today){
      double p = 0;
      double c = 0;
      
+     const double MAXLOT = 10000;
+     const double MAX = .0015;
+     
     if(today == 0){
         return 1;
     }
@@ -1555,11 +1558,6 @@ double linetrader :: trader(int today){
         velocity.push_back(deltay);
      }
      
-     for(int i = 1; i<today; i++) {
-         deltay = velocity[i]-velocity[i-1];
-         acceleration.push_back(deltay);
-    }
-    
     if(deltay>0){
         p = -1;
     }
@@ -1568,18 +1566,24 @@ double linetrader :: trader(int today){
         p = 1;
     }
     
+    
+    
+     
+     for(int i = 1; i<today; i++) {
+         deltay = velocity[i]-velocity[i-1];
+         acceleration.push_back(deltay);
+    }
+    
+    double shares= fabs(deltay); 
+    c = (shares/MAX)*MAXLOT; 
+    
+    
+   
     for(int i = 1; i<today; i++) { 
         deltay = acceleration[i]-acceleration[i-1];
         jerk.push_back(deltay);
     }
     
-    if((acceleration[today]-acceleration[today-1])>0){
-        c = 1000; 
-    }
-    
-    if((acceleration[today]-acceleration[today-1])<0){
-        c = 100;
-    }
     double posit = c*p;
     return posit;
 }
