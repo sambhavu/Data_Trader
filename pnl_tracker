@@ -1,0 +1,144 @@
+#include<algorithm>
+#include<vector>
+#include<cmath>
+#include<iostream>
+
+using namespace std; 
+
+const double VAL[6] = {
+1.262760,
+1.262760,
+1.262750,
+1.262700,
+1.262920,
+1.262860}; 
+
+
+class trader{ 
+  public: 
+  
+  double perc_change(double prev, double today); 
+  
+  double trade(int i, double position);
+  
+  double position(int today, vector<double> daily, vector<double> net, double p); 
+  
+  double hold(double p); 
+  double change(double p); 
+  
+  
+};
+
+
+double trader :: hold(double p){ 
+ return p * 1.0;
+}
+
+
+double trader :: change(double p){ 
+    return p * -1; 
+}
+
+
+double trader :: perc_change(double prev, double today)
+{
+    return (today-prev)/prev; 
+}
+
+
+
+
+double trader::trade(int i,double position){ 
+    double dailyprofit; 
+    
+    if(position>0)  //long
+    {
+        dailyprofit  = perc_change(VAL[i-1],VAL[i]) * position * VAL[i-1];
+    }
+    
+    if(position<0)  //short
+    {
+        dailyprofit = perc_change(VAL[i-1],VAL[i])*(position) * VAL[i-1]; 
+    }   
+    
+    return dailyprofit; 
+}
+
+
+
+
+
+double trader :: position(int today,vector<double> daily, vector<double> net, double p)
+{ 
+    int count_stay = 0; 
+    int count_switch = 0; 
+
+    for(int i = 0;i<daily.size();i++) {
+     
+     if(daily[i]>0) { 
+        count_stay +=1;  
+     }
+     
+     if(daily[i]<0){
+        count_switch = 0;
+     }  
+     
+     
+    }
+    
+     if(count_switch>count_stay){ 
+         change(p);
+     }
+     
+     if(count_switch<=count_stay){
+         hold(p);
+     }
+  
+
+
+    return p;    
+}
+
+
+
+
+
+
+
+
+int main(){
+    
+ trader x;
+ 
+ double position, dp, pnl;
+ 
+ double p = 10000;
+ 
+ vector<double> dailyprofit;
+ vector<double> profit; 
+  
+ for(int i=1;i<6;i++){
+     
+    position    = x.position(i-1,dailyprofit,profit,p); 
+    p=position;
+    
+    dp = x.trade(i,position);
+    
+    pnl += dp; 
+    
+    dailyprofit.push_back(dp);
+    profit.push_back(pnl); 
+    
+    
+    
+    
+ }
+ 
+ for(int k = 0;k<dailyprofit.size();k++)cout<<dailyprofit[k]<<"\n";
+  
+  
+ return 0;   
+}
+
+
+    
