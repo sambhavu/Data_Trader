@@ -8,7 +8,7 @@ int main(){
 
 bool prime=0;
 
-for(int i=1; i<=100; i++) {
+for(int i=1; i<=100000; i++) {
 
      for(int j=2;j<i;j++){
      
